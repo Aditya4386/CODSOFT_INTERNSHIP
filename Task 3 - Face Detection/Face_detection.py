@@ -21,7 +21,7 @@ while True:
         cv2.rectangle(video_data,(x,y),(x+w,y+h),(0,0,255),2)
 
     cv2.imshow("Image Detection",video_data)
-    if cv2.waitKey(5) == ord('x'):
+    if cv2.waitKey(5)==ord('x'):
         break
 
 video_input.release()

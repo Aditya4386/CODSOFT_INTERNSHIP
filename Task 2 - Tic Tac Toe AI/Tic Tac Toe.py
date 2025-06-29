@@ -1,5 +1,6 @@
 import numpy as np
-
+import tkinter as tk
+from tkinter import messagebox
 
 def check_winner(board):
     winner=None
@@ -18,8 +19,6 @@ def check_winner(board):
         winner=board[1][1]
 
     return winner
-    
-        
 
 def isfull(board):
     for i in range(3):
@@ -65,7 +64,7 @@ def minimax(board,maximizing):
                     board[i][j]=''
                     bestscore=min(score,bestscore)
         return bestscore
-    
+
 def bestmove(board):
     bestscore=-9999
     move=None
@@ -78,7 +77,6 @@ def bestmove(board):
                 if score>bestscore:
                     bestscore=score
                     move=(i,j)
-
     return move
 
 board=[
@@ -86,49 +84,69 @@ board=[
     ['','',''],
     ['','','']
 ]
-display(board)
 
-while True:
-    print("player 'X' move")
-    print("Enter the row and column to specify the position")
-    a=int(input())
-    b=int(input())
+root=tk.Tk()
+root.title("Tic Tac Toe - Human vs AI")
+buttons=[[None for _ in range(3)] for _ in range(3)]
 
-    if a not in [0,1,2] or b not in [0,1,2]:
-        print("enter the valid input")
-        continue
+def update_buttons():
+    for i in range(3):
+        for j in range(3):
+            buttons[i][j].config(text=board[i][j])
 
-    if board[a][b] != '':
-        print("feild is not empty")
-        continue 
+def disable_buttons():
+    for i in range(3):
+        for j in range(3):
+            buttons[i][j].config(state=tk.DISABLED)
 
-    board[a][b]='X' 
+def enable_buttons():
+    for i in range(3):
+        for j in range(3):
+            buttons[i][j].config(state=tk.NORMAL)
 
-    result=check_winner(board)
-    if result!=None:
-       print(result," Won")
-       display(board)
-       break
+def reset_game():
+    for i in range(3):
+        for j in range(3):
+            board[i][j]=''
+    update_buttons()
+    enable_buttons()
 
-    display(board)
+def on_click(i,j):
+    if board[i][j]=='':
+        board[i][j]='X'
+        update_buttons()
 
-    if isfull(board):
-        print("its a draw")
-        break
+        result=check_winner(board)
+        if result!=None:
+            messagebox.showinfo("Game Over",f"{result} won!")
+            disable_buttons()
+            return
+        elif isfull(board):
+            messagebox.showinfo("Game Over","it's a draw")
+            disable_buttons()
+            return
 
-    print("AI move")
+        move=bestmove(board)
+        if move!=None:
+            a,b=move
+            board[a][b]='O'
+            update_buttons()
 
-    (a,b)=bestmove(board)
-    board[a][b]='O'
+            result=check_winner(board)
+            if result!=None:
+                messagebox.showinfo("Game Over",f"{result} won!")
+                disable_buttons()
+            elif isfull(board):
+                messagebox.showinfo("Game Over","it's a draw")
+                disable_buttons()
 
-    result=check_winner(board)
-    if result!=None:
-       print(result," Won")
-       display(board)
-       break
-    
-    display(board)
+for i in range(3):
+    for j in range(3):
+        button=tk.Button(root,text='',font=('Helvetica',20),width=5,height=2,command=lambda i=i,j=j: on_click(i,j))
+        button.grid(row=i,column=j)
+        buttons[i][j]=button
 
-    if isfull(board):
-        print("its a draw")
-        break
+play_again_btn=tk.Button(root,text='Play Again',font=('Helvetica',14),command=reset_game)
+play_again_btn.grid(row=3,column=0,columnspan=3,pady=10)
+
+root.mainloop()
